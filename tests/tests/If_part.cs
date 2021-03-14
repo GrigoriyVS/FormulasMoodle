@@ -10,39 +10,117 @@ namespace tests
         public static int countTests = 0;
         public static int countErrors = 0;
         public static Dictionary<string, int> typeError = new Dictionary<string, int>();
+        public static Dictionary<string, string> typeDetailsError = new Dictionary<string, string>();
+        public static Dictionary<string, int> typeTests = new Dictionary<string, int>();
 
-        public static string ThrowError(string typeError) 
+
+        public static void PlusOne(Dictionary<string, int> typeDict, string typeMsg) 
         {
-            countErrors++;
-            int countErrorsOfType;
-            if (Tests.typeError.TryGetValue(typeError, out countErrorsOfType))
+            if (typeDict.TryGetValue(typeMsg, out _))
             {
-                foreach (var dict in Tests.typeError)
+                foreach (var dict in typeDict)
                 {
-                    if (dict.Key == typeError)
-                    {
+                    if (dict.Key == typeMsg)
+                    {                       
                         int newVal = dict.Value;
-                        Tests.typeError.Remove(typeError);
-                        Tests.typeError.Add(typeError, newVal+1);
+                        typeDict.Remove(typeMsg);
+                        typeDict.Add(typeMsg, newVal+1);                        
                         break;
                     }
 
                 }
             }
             else
-            Tests.typeError.Add(typeError, 1);
+                typeDict.Add(typeMsg, 1);
+        }
+        public static void PlusMsg(Dictionary<string, string> typeDict, string typeMsg, string Msg)
+        {
+            if (typeDict.TryGetValue(typeMsg, out _))
+            {
+                foreach (var dict in typeDict)
+                {
+                    if (dict.Key == typeMsg)
+                    {
+                        string newVal = dict.Value;
+                        typeDict.Remove(typeMsg);
+                        typeDict.Add(typeMsg, newVal + Msg);
+                        break;
+                    }
 
-            return "  \t\tINCORRECT";
+                }
+            }
+            else
+                typeDict.Add(typeMsg, Msg);
         }
 
-        public static void ShowErrors()
+        public static string MsgIndent(string Msg, string typeMsg, Dictionary<string, int> typeDict) 
+        {
+            int defaultIndent = 3;
+            foreach (var dict in typeDict)
+            {
+                if(dict.Key == typeMsg) break;
+                defaultIndent++;
+            }
+
+            string indent = "";
+            for (int i = 0; i < defaultIndent; i++)
+            {
+                indent += "\t";
+            }
+            return indent + Msg;
+        }
+
+        public static string ThrowError(string typeError, string typeDetailsError = "No details.") 
+        {
+            countTests++;
+            countErrors++;
+            PlusOne(Tests.typeError, typeError);
+            if (typeDetailsError != "No details.") 
+            {
+                PlusMsg(Tests.typeDetailsError, typeError, typeDetailsError);
+            }
+
+            return MsgIndent("INCORRECT", typeError, Tests.typeError);
+        }
+        public static string ThrowCorrect(string typeTests)
+        {
+            countTests++;
+            PlusOne(Tests.typeTests, typeTests);
+
+            return MsgIndent("correct", typeTests, Tests.typeTests);
+        }
+
+        public static void ShowErrors(bool onDetails = false)
         {            
             Console.WriteLine("\n\nCount Errors:" + countErrors);
             for (int i = 0; i < 25; i++) Console.Write("="); Console.WriteLine();
 
             foreach (var error in typeError)
             {
-                Console.WriteLine($"Erorr {error.Key}: {error.Value}");
+                Console.WriteLine($"Erorr <{error.Key}>: {error.Value}");
+                if (onDetails) 
+                { 
+                    Console.WriteLine("\tDetails error:");
+                    foreach (var detail in typeDetailsError)
+                    {
+                        if(detail.Key == error.Key) 
+                            Console.WriteLine($"\t{detail.Value}");
+                    }
+                }
+                
+            }
+        }
+
+
+        public static void ShowStat(bool onDetails = false)
+        {
+            ShowErrors(onDetails);
+            Console.WriteLine("\nAll Tests:" + countTests);
+            for (int i = 0; i < 25; i++) Console.Write("="); Console.WriteLine();
+
+            foreach (var test in typeTests)
+            {
+                Console.WriteLine($"Complete <{test.Key}>: {test.Value}");
             }
         }
     }
@@ -136,7 +214,7 @@ namespace tests
                     Write(":a<b:");
                     float uformula2 = (float)Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b +- 0.0001)+ 0.0001) ) + 0.2384058);
                     Write(uformula2);
-                    WriteLine((((isGreater ? 1 : 0) == uformula1) && ((!isGreater ? 1 : 0) == uformula2)) ? "  correct" : Tests.ThrowError("Отрицательные числа"));
+                    WriteLine((((isGreater ? 1 : 0) == uformula1) && ((!isGreater ? 1 : 0) == uformula2)) ? Tests.ThrowCorrect("1") : Tests.ThrowError("Отрицательные числа"));
 
                     /*
                     float formula1 = (float)
@@ -155,13 +233,13 @@ namespace tests
                         Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062) - 1);//(b<0)
 
                     double formula3 =
-                        (Math.Floor(Math.Tanh(a + 0.0001)) + 1) * (Math.Floor(Math.Tanh(b + 0.0001)) + 1); // (a>=0 && b>=0)
+                        Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062) * Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062); // (a>=0 && b>=0)
 
                     WriteLine($"a>=0:  [{formula1}:{formula1_obr}]");
                     WriteLine($"b>=0:  [{formula2}:{formula2_obr}]");
                     Write("(a>=0 && b>=0):" + formula3);
 
-                    WriteLine(((a >= 0 && b >= 0 ? 1 : 0) == formula3) ? "  \tcorrect" : Tests.ThrowError("2"));
+                    WriteLine(((a >= 0 && b >= 0 ? 1 : 0) == formula3) ? Tests.ThrowCorrect("2") : Tests.ThrowError("2",$"[{a},{b}]={formula3}\n")) ;
 
 
                     double formula1_Less0_aGreaterB =
@@ -186,7 +264,7 @@ namespace tests
 
 
                     Write("\t\t\t" + formula1_Less0_aGreaterB + " " + Math.Floor(formula1_Less0_aGreaterB));
-                    WriteLine(((a > b) ? 1 : 0) == formula1_Less0_aGreaterB ? "  \tcorrect" : Tests.ThrowError("4"));
+                    WriteLine(((a > b) ? 1 : 0) == formula1_Less0_aGreaterB ? Tests.ThrowCorrect("4") : Tests.ThrowError("4"));
                     break;
                 
                 
@@ -221,13 +299,12 @@ namespace tests
             for (int a  = (int)interval_a.X; a < interval_a.Y; a += delta)
             {
                 for (int b = (int)interval_b.X; b < interval_b.Y; b += delta)
-                {
-                   
+                {                   
                     If_siple(a, b, cIf);
                     WriteLine();
                 }
             }
-            Tests.ShowErrors();
+            Tests.ShowStat(onDetails:true);
         }
 
         public static void If_nested()
