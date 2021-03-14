@@ -1,0 +1,10 @@
+﻿
+
+
+zMath.Floor = floor
+zMath.Tanh = tanh
+zMath.Abs = abs
+{a} = a
+{b} = b
+
+floor(tanh((abs({a}) / abs({a} - {b} + 0.0001)) / (abs({b}) / abs({a} - {b} + 0.0001))) + 0.2384062) * (floor(tanh({a} + 0.0001)) + 1) * (floor(tanh({b} + 0.0001)) + 1) + 1 * (floor(tanh({a} + 0.0001)) + 1) * abs(floor(tanh({b} + 0.0001))) + floor(tanh((abs({b}) / abs({a} - {b} + 0.0001)) / (abs({a}) / abs({a} - {b} + 0.0001))) + 0.2384062) * abs(floor(tanh({b} + 0.0001))) * abs(floor(tanh({a} + 0.0001)));  
