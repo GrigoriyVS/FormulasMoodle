@@ -7,12 +7,31 @@ namespace tests
 {
     static class Tests 
     {
+        public static bool skipLargeStat = true;
+
         public static int countTests = 0;
         public static int countErrors = 0;
         public static Dictionary<string, int> typeError = new Dictionary<string, int>();
-        public static Dictionary<string, string> typeDetailsError = new Dictionary<string, string>();
+        public static Dictionary<string, List<string>> typeDetailsError = new Dictionary<string, List<string>>();
         public static Dictionary<string, int> typeTests = new Dictionary<string, int>();
 
+        public static long CountTests(List<Vector2> values, int delta) 
+        {
+            long countTests = 1;
+            foreach (var val in values)
+            {
+                countTests *= (long)(val.Y - val.X);
+            }
+            return (long)((countTests * typeTests.Count) / (Math.Pow(delta, values.Count)));
+        }
+
+        public static void ShowProgress(int delta,long countAllTests = 0, int a=0, int b=0)
+        {
+            if (!If_part.writeAll) 
+            {
+                if(countTests % delta == 0) Console.WriteLine($"Complete tests: {countTests}/{countAllTests}({Math.Round(((float)countTests/countAllTests)*100,1)}%), Errors: {countErrors}. [a = {a},b = {b}].");
+            }
+        }
 
         public static void PlusOne(Dictionary<string, int> typeDict, string typeMsg) 
         {
@@ -33,7 +52,7 @@ namespace tests
             else
                 typeDict.Add(typeMsg, 1);
         }
-        public static void PlusMsg(Dictionary<string, string> typeDict, string typeMsg, string Msg)
+        public static void PlusMsg(Dictionary<string, List<string>> typeDict, string typeMsg, string Msg)
         {
             if (typeDict.TryGetValue(typeMsg, out _))
             {
@@ -41,16 +60,16 @@ namespace tests
                 {
                     if (dict.Key == typeMsg)
                     {
-                        string newVal = dict.Value;
+                        List<string> newVal = dict.Value;
                         typeDict.Remove(typeMsg);
-                        typeDict.Add(typeMsg, newVal + Msg);
+                        newVal.Add(Msg);
+                        typeDict.Add(typeMsg, newVal);
                         break;
                     }
-
                 }
             }
             else
-                typeDict.Add(typeMsg, Msg);
+                typeDict.Add(typeMsg, new List<string>() { Msg });
         }
 
         public static string MsgIndent(string Msg, string typeMsg, Dictionary<string, int> typeDict) 
@@ -99,12 +118,28 @@ namespace tests
             {
                 Console.WriteLine($"Erorr <{error.Key}>: {error.Value}");
                 if (onDetails) 
-                { 
-                    Console.WriteLine("\tDetails error:");
+                {
+                    int SHOW, show; SHOW = 3; show = 10;
+                    int SKIP, skip; SKIP = skip = skipLargeStat?350:0;
+                    Console.WriteLine("  Details error:");
                     foreach (var detail in typeDetailsError)
                     {
-                        if(detail.Key == error.Key) 
-                            Console.WriteLine($"\t{detail.Value}");
+                        if (detail.Key == error.Key)
+                        {
+                            foreach (var Msg in detail.Value)
+                            {
+                                if (show-- > 0)
+                                    Console.WriteLine($"    {Msg}");
+                                else if (skip-- > 0) continue;
+                                else
+                                {
+                                    show = SHOW;
+                                    skip = SKIP;
+                                    SKIP = (int)(SKIP * 1.3);
+                                    if (skip != 0) Console.WriteLine($"        [.....] hide {SKIP}.");
+                                }
+                            }
+                        }        
                     }
                 }
                 
@@ -214,7 +249,7 @@ namespace tests
                     Write(":a<b:");
                     float uformula2 = (float)Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b +- 0.0001)+ 0.0001) ) + 0.2384058);
                     Write(uformula2);
-                    WriteLine((((isGreater ? 1 : 0) == uformula1) && ((!isGreater ? 1 : 0) == uformula2)) ? Tests.ThrowCorrect("1") : Tests.ThrowError("Отрицательные числа"));
+                    WriteLine((((isGreater ? 1 : 0) == uformula1) && ((!isGreater ? 1 : 0) == uformula2)) || a == b  ? Tests.ThrowCorrect("1") : Tests.ThrowError("Отрицательные числа, равные", $"[{a},{b}]=[a>b:{uformula1},a<b:{uformula2}]"));
 
                     /*
                     float formula1 = (float)
@@ -239,7 +274,7 @@ namespace tests
                     WriteLine($"b>=0:  [{formula2}:{formula2_obr}]");
                     Write("(a>=0 && b>=0):" + formula3);
 
-                    WriteLine(((a >= 0 && b >= 0 ? 1 : 0) == formula3) ? Tests.ThrowCorrect("2") : Tests.ThrowError("2",$"[{a},{b}]={formula3}\n")) ;
+                    WriteLine(((a >= 0 && b >= 0 ? 1 : 0) == formula3) ? Tests.ThrowCorrect("2") : Tests.ThrowError("2",$"[{a},{b}]={formula3}")) ;
 
 
                     double formula1_Less0_aGreaterB =
@@ -253,14 +288,7 @@ namespace tests
 
                         Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b + -0.0001) + 0.0001)) + 0.2384058) *
                         Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062) - 1) * Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062) - 1);   /*(a<0 && b<0)*/
-                    /**/
-                    Write(Math.Floor(Math.Tanh((Math.Abs(a) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b) / Math.Abs(a - b + 0.0001))) + 0.2384062) *
-                        (Math.Floor(Math.Tanh(a + 0.0001)) + 1) * (Math.Floor(Math.Tanh(b + 0.0001)) + 1));
-                    Write("+" + 1 *
-                        (Math.Floor(Math.Tanh(a + 0.0001)) + 1) * Math.Abs(Math.Floor(Math.Tanh(b + 0.0001))));
-                    Write("+"+Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b + 0.0001))) + 0.2384062) *
-                        Math.Abs(Math.Floor(Math.Tanh(b + 0.0001))) * Math.Abs(Math.Floor(Math.Tanh(a + 0.0001))));
-                    WriteLine();
+                    
 
 
                     Write("\t\t\t" + formula1_Less0_aGreaterB + " " + Math.Floor(formula1_Less0_aGreaterB));
@@ -296,11 +324,13 @@ namespace tests
         }
         public static void Test_If_siple(Vector2 interval_a, Vector2 interval_b, int delta = 1, ConditionIf cIf = ConditionIf.equals) 
         {
+            Tests.skipLargeStat = true;
             for (int a  = (int)interval_a.X; a < interval_a.Y; a += delta)
             {
                 for (int b = (int)interval_b.X; b < interval_b.Y; b += delta)
                 {                   
                     If_siple(a, b, cIf);
+                    Tests.ShowProgress(50000,Tests.CountTests(new List<Vector2>() { interval_a, interval_b }, delta),a,b);
                     WriteLine();
                 }
             }
