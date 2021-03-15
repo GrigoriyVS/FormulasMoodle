@@ -10,7 +10,7 @@ namespace tests
             If_part.writeAll = !!false;
 
 
-            If_part.Test_If_siple(new Vector2(-999,999), new Vector2(-9999, 9999), 9, If_part.ConditionIf.greater);
+            If_part.Test_If_siple(new Vector2(-9999,9999), new Vector2(-99, 99), 1, If_part.ConditionIf.greater);
 
             Console.Read();
 
