@@ -7,13 +7,15 @@ namespace tests
 {
     static class Tests 
     {
+        private static string lastTypeError = "";
         public static bool skipLargeStat = true;
 
-        public static int countTests = 0;
-        public static int countErrors = 0;
-        public static Dictionary<string, int> typeError = new Dictionary<string, int>();
-        public static Dictionary<string, List<string>> typeDetailsError = new Dictionary<string, List<string>>();
-        public static Dictionary<string, int> typeTests = new Dictionary<string, int>();
+        private static int countTests = 0;
+        private static int countErrors = 0;
+        private static Dictionary<string, int> typeError = new Dictionary<string, int>();
+        private static Dictionary<string, List<string>> typeDetailsError = new Dictionary<string, List<string>>();
+        private static Dictionary<string, int> typeTests = new Dictionary<string, int>();
+        private static List<string> ignorList = new List<string>();
 
         public static long CountTests(List<Vector2> values, int delta) 
         {
@@ -93,6 +95,7 @@ namespace tests
         {
             countTests++;
             countErrors++;
+            lastTypeError = typeError;
             PlusOne(Tests.typeError, typeError);
             if (typeDetailsError != "No details.") 
             {
@@ -109,6 +112,24 @@ namespace tests
             return MsgIndent("correct", typeTests, Tests.typeTests);
         }
 
+        public static void IgnoreError()
+        {
+            foreach (var item in ignorList)
+            {
+                if (item == lastTypeError) return;
+            }
+            ignorList.Add(lastTypeError);            
+        }
+
+        private static bool isIgnored(string typeError) 
+        {
+            foreach (var item in ignorList)
+            {
+                if (item == typeError) return true;
+            }
+            return false;
+        }
+
         public static void ShowErrors(bool onDetails = false)
         {            
             Console.WriteLine("\n\nCount Errors:" + countErrors);
@@ -117,32 +138,38 @@ namespace tests
             foreach (var error in typeError)
             {
                 Console.WriteLine($"Erorr <{error.Key}>: {error.Value}");
-                if (onDetails) 
+                if (isIgnored(error.Key))
                 {
-                    int SHOW, show; SHOW = 3; show = 10;
-                    int SKIP, skip; SKIP = skip = skipLargeStat?350:0;
-                    Console.WriteLine("  Details error:");
-                    foreach (var detail in typeDetailsError)
+                    Console.WriteLine("\tIgnorred.");
+                }
+                else 
+                { 
+                    if (onDetails)
                     {
-                        if (detail.Key == error.Key)
+                        int SHOW, show; SHOW = 3; show = 10;
+                        int SKIP, skip; SKIP = skip = skipLargeStat ? 350 : 0;
+                        Console.WriteLine("  Details error:");
+                        foreach (var detail in typeDetailsError)
                         {
-                            foreach (var Msg in detail.Value)
+                            if (detail.Key == error.Key)
                             {
-                                if (show-- > 0)
-                                    Console.WriteLine($"    {Msg}");
-                                else if (skip-- > 0) continue;
-                                else
+                                foreach (var Msg in detail.Value)
                                 {
-                                    show = SHOW;
-                                    skip = SKIP;
-                                    SKIP = (int)(SKIP * 1.3);
-                                    if (skip != 0) Console.WriteLine($"        [.....] hide {SKIP}.");
+                                    if (show-- > 0)
+                                        Console.WriteLine($"    {Msg}");
+                                    else if (skip-- > 0) continue;
+                                    else
+                                    {
+                                        show = SHOW;
+                                        skip = SKIP;
+                                        SKIP = (int)(SKIP * 1.3);
+                                        if (skip != 0) Console.WriteLine($"        [.....] hide {SKIP}.");
+                                    }
                                 }
                             }
-                        }        
+                        }
                     }
                 }
-                
             }
         }
 
@@ -193,9 +220,17 @@ namespace tests
                     {
                         WriteLine(valueElse);
                     }
+                    double formula1_aEqB =
+                        Math.Floor(Math.Tanh((Math.Abs(a) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384062) *
+                        Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384062);
 
+                    double formula1_Part1_aEqB =
+                        /*Math.Floor*/(Math.Tanh((Math.Abs(a) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384062);
+                    
+                    double formula1_Part2_aEqB =
+                       /*Math.Floor*/(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384062);
 
-
+                    WriteLine(((a == b) ? 1 : 0) == formula1_aEqB ? Tests.ThrowCorrect("aEqB") : Tests.ThrowError("aEqB "+((a<0&&b>0 || b<0&&a>0)?"разные знаки":"одного знака"), $"[{a},{b}]=[a=b:{formula1_aEqB}({formula1_Part1_aEqB}*{formula1_Part2_aEqB})]"));
                     break;
 
 
@@ -211,7 +246,7 @@ namespace tests
                 [1..inf) [1..inf) |  1   |   1     
                  */
                 case ConditionIf.less:
-                    bool isLess = a > b;
+                    bool isLess = a < b;
                     if (isLess) 
                     {
                         WriteLine(valueIf);
@@ -221,15 +256,34 @@ namespace tests
                         WriteLine(valueElse);
                     }
 
-                    WriteLine(Math.Floor(Math.Tanh((a / Math.Abs(a - b + 0.0001)) / (b / Math.Abs(a - b + 0.0001))) + 0.2384062));
-                    WriteLine(Math.Floor(Math.Tanh((b / Math.Abs(a - b + 0.0001)) / (a / Math.Abs(a - b + 0.0001))) + 0.2384062/*<=*/));
+                    WriteLine(Math.Floor(Math.Tanh((a / Math.Abs(a - b + 0.0001)) / (b / Math.Abs(a - b + 0.0001))) + 0.2384062));//устарело
+                    Math.Floor(Math.Tanh((Math.Abs(a) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384058);
+
+                    WriteLine(Math.Floor(Math.Tanh((b / Math.Abs(a - b + 0.0001)) / (a / Math.Abs(a - b + 0.0001))) + 0.2384062/*<=*/));//устарело
+                    Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384058);
+
+
+                    double formula1_aLessB =
+                        Math.Floor(Math.Tanh((Math.Abs(b/*a*/) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a/*b*/) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384058) *
+                        (Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062)) * (Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062)) + 
+                        1 * Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062) - 1)* (Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062)) + /*b>=0 && a<0*/
+                        Math.Floor(Math.Tanh((Math.Abs(a/*b*/) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b/*a*/) / Math.Abs(a - b + -0.0001) + 0.0001)) + 0.2384058) *
+                        
+                        Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062) - 1) * Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062) - 1);  
+
+                    Write("\t\t\t" + formula1_aLessB + " " + Math.Floor(formula1_aLessB));
+                    WriteLine(((a < b) ? 1 : 0) == formula1_aLessB ? Tests.ThrowCorrect("aLessB") : Tests.ThrowError("aLessB", $"[{a},{b}]=[a<b:{formula1_aLessB}]"));
+
 
                     break;
                 
                 
                 case ConditionIf.greater:
-                    bool isGreater = a > b;
                     //if (a < 0 || b < 0) break;
+
+                /*==============================================*/
+                    bool isGreater = a > b;
+                    
                     if (isGreater) 
                     {
                         WriteLine(valueIf);
@@ -239,7 +293,10 @@ namespace tests
                         WriteLine(valueElse);
                     }
 
-                    //проблемы с числами (-inf.:-1]
+
+
+                /*==============================================*/
+                    //проблемы с числами (-inf.:0)
                     Write(isGreater);
                     Write(":a>b:");
                     float uformula1 = (float)Math.Floor(Math.Tanh((Math.Abs(a) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b) / Math.Abs(a - b + 0.0001)+ 0.0001) ) + 0.2384058);/*<*/
@@ -247,28 +304,41 @@ namespace tests
 
                     Write(!isGreater);
                     Write(":a<b:");
-                    float uformula2 = (float)Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b +- 0.0001)+ 0.0001) ) + 0.2384058);
+                    float uformula2 = (float)Math.Floor(Math.Tanh((Math.Abs(b) / Math.Abs(a - b + 0.0001)) / (Math.Abs(a) / Math.Abs(a - b + 0.0001)+ 0.0001) ) + 0.2384058);
                     Write(uformula2);
-                    WriteLine((((isGreater ? 1 : 0) == uformula1) && ((!isGreater ? 1 : 0) == uformula2)) || a == b  ? Tests.ThrowCorrect("1") : Tests.ThrowError("Отрицательные числа, равные", $"[{a},{b}]=[a>b:{uformula1},a<b:{uformula2}]"));
+                    
+                    WriteLine((((isGreater ? 1 : 0) == uformula1) && ((!isGreater ? 1 : 0) == uformula2)) || a == b  ? 
+                        Tests.ThrowCorrect("Отрицательные числа, равные") : 
+                        Tests.ThrowError("Отрицательные числа, равные", $"[{a},{b}]=[a>b:{uformula1},a<b:{uformula2}]"));
+                    Tests.IgnoreError();
 
                     /*
                     float formula1 = (float)
                         Math.Floor(Math.Tanh((a / Math.Abs(a - b + 0.0001)) / (b / Math.Abs(a - b + 0.0001))) + 0.2384062);
                     */
 
-                    
+
+                    //value>=0
                     float formula1 = (float)
                         (Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001))+1) + 0.2384062));//(a>=0)
                     float formula1_obr = (float)
                         Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062)-1);//(a<0)
+                    
+                    float formula1_Eq = (float)
+                        (/*Math.Floor*/(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2383638));//(a<=0)
+                    WriteLine(((a > 0 ? 1 : 0) == Math.Floor(formula1_Eq)) ? Tests.ThrowCorrect("a>0") : Tests.ThrowError("a>0", $"[{a}]=[a>0:({formula1_Eq};{Math.Floor(formula1_Eq)})]"));
 
                     float formula2 = (float)
                         (Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062));//(b>=0)
                     float formula2_obr = (float)
                         Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062) - 1);//(b<0)
 
+
                     double formula3 =
                         Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062) * Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062); // (a>=0 && b>=0)
+
+
+
 
                     WriteLine($"a>=0:  [{formula1}:{formula1_obr}]");
                     WriteLine($"b>=0:  [{formula2}:{formula2_obr}]");
@@ -277,7 +347,8 @@ namespace tests
                     WriteLine(((a >= 0 && b >= 0 ? 1 : 0) == formula3) ? Tests.ThrowCorrect("2") : Tests.ThrowError("2",$"[{a},{b}]={formula3}")) ;
 
 
-                    double formula1_Less0_aGreaterB =
+                    //поддерживает отрицательные, положительные и ноль
+                    double formula1_aGreaterB =
                         Math.Floor(Math.Tanh((Math.Abs(a) / Math.Abs(a - b + 0.0001)) / (Math.Abs(b) / Math.Abs(a - b + 0.0001) + 0.0001)) + 0.2384058) *
                         (Math.Floor(Math.Tanh((Math.Tanh(a + 0.0001)) + 1) + 0.2384062)) * (Math.Floor(Math.Tanh((Math.Tanh(b + 0.0001)) + 1) + 0.2384062)) + /*(a>=0 && b>=0)*/
 
@@ -291,8 +362,12 @@ namespace tests
                     
 
 
-                    Write("\t\t\t" + formula1_Less0_aGreaterB + " " + Math.Floor(formula1_Less0_aGreaterB));
-                    WriteLine(((a > b) ? 1 : 0) == formula1_Less0_aGreaterB ? Tests.ThrowCorrect("4") : Tests.ThrowError("4"));
+                    Write("\t\t\t" + formula1_aGreaterB + " " + Math.Floor(formula1_aGreaterB));
+                    WriteLine(((a > b) ? 1 : 0) == formula1_aGreaterB ? Tests.ThrowCorrect("4") : Tests.ThrowError("4"));
+
+
+
+
                     break;
                 
                 
@@ -330,7 +405,7 @@ namespace tests
                 for (int b = (int)interval_b.X; b < interval_b.Y; b += delta)
                 {                   
                     If_siple(a, b, cIf);
-                    Tests.ShowProgress(50000,Tests.CountTests(new List<Vector2>() { interval_a, interval_b }, delta),a,b);
+                    Tests.ShowProgress(130000,Tests.CountTests(new List<Vector2>() { interval_a, interval_b }, delta),a,b);
                     WriteLine();
                 }
             }
