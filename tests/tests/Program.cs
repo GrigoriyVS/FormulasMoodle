@@ -16,7 +16,7 @@ namespace tests
             //    1, If_part.ConditionIf.greater_eq);
 
             If_part.Test_If_nested(
-                new Vector2(-19, 19), 
+                new Vector2(-29, 29), 
                 new Vector2(-19, 19),
                 new Vector2(-19, 19),
                 new Vector2(-19, 19),

@@ -358,7 +358,7 @@ namespace tests
                         ((Math.Floor(Math.Tanh((Math.Tanh(Math.Abs(c) + 0.0001)) + 1) + 0.2383638)) * (Math.Floor(Math.Tanh((Math.Tanh(Math.Abs(d) + 0.0001)) + 1) + 0.2383638))) +/*|c|>0 && |d|>0 (не ноль)*/
                         Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(Math.Abs(c) + 0.0001)) + 1) + 0.2383638) - 1) * Math.Abs(Math.Floor(Math.Tanh((Math.Tanh(Math.Abs(d) + 0.0001)) + 1) + 0.2383638) - 1));
 
-                    WriteLine(((a >= b && c >= d ? 1 : 0) == formula_ifif) ? Tests.ThrowCorrect("a >= b && c >= d") : Tests.ThrowError("a >= b && c >= d", $"[{a},{b},{c},{d}]={formula_ifif}"));
+                    WriteLine(((a >= b && c >= d+1 ? 1 : 0) == formula_ifif) ? Tests.ThrowCorrect("a >= b && c >= d") : Tests.ThrowError("a >= b && c >= d", $"[{a},{b},{c},{d}]={formula_ifif}"));
                     
                     
                     

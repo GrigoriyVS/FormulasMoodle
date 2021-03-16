@@ -20,11 +20,11 @@
 
 <div class="" id="Menu">
     <div class="row">
-        <div class="col-md-4">
+        <form class="col-md-4" action="{% url 'foofoo' %}" method="post">
              <div id="jquery-accordion-menu" class="jquery-accordion-menu black">
                  <div class="jquery-accordion-menu-header" id="form"></div>
                  <ul id="mainMenu-list">
-                     <li class="active bt"><a href="#"><i class="fa fa-home"></i>Won </a></li>
+                     <li class="active bt"><a href="#" type="submit" name="Won"><i class="fa fa-home"></i>Won </a></li>
                      <li class="bt"><a href="#" id="Switsh"><i class="fa fa-sitemap" ></i>Switsh </a></li>
                      <li class="bt"><a href="#"><i class="fa fa-code-fork"></i>If </a>
                         <span class="jquery-accordion-menu-label">12 </span>
@@ -57,7 +57,7 @@
                      <li><a href="#"><i class="fa fa-envelope"></i>Contact </a></li>
                  </ul>
              </div>
-        </div><!-- ./col-md-4 col-md-offset-4 -->
+        </form><!-- ./col-md-4 col-md-offset-4 -->
     </div><!-- ./row -->
 </div><!-- ./container --> 
 
@@ -82,6 +82,16 @@
 
 <script type="text/javascript">
 
+function SendDataAjax(typeReqest) {
+    $.ajax({
+        type: "GET",
+        url: "foofoo/",
+        data: {"typeReqest":typeReqest},
+        success: function (msg) {
+            alert("Прибыли данные: " + msg);
+        }
+    });
+}
 function SendData(typeReqest) {
     const request = new XMLHttpRequest();
     const url = "models.py";
@@ -124,7 +134,7 @@ window.onload = function ()
                 document.getElementsByTagName('a')[pf].onclick = function()
                 {
                     //alert(this.textContent);
-                    SendData(this.textContent)
+                    SendDataAjax(this.textContent)
                     return false;
                 }
             }
