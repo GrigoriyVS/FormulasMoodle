@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - My Django Application</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/bootstrap.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/site.css' %}" />
+    <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://bootstraptema.ru/snippets/menu/2017/vam.md.css" />
+    <script src="https://bootstraptema.ru/plugins/jquery/jquery-1.11.3.min.js"></script>
+    <script src="https://bootstraptema.ru/snippets/menu/2017/vam.md.js"></script>
+</head>
+
+<body>   
+
+
+<div class="" id="Menu">
+    <div class="row">
+        <div class="col-md-4">
+             <div id="jquery-accordion-menu" class="jquery-accordion-menu black">
+                 <div class="jquery-accordion-menu-header" id="form"></div>
+                 <ul id="mainMenu-list">
+                     <li class="active bt"><a href="#"><i class="fa fa-home"></i>Won </a></li>
+                     <li class="bt"><a href="#" id="Switsh"><i class="fa fa-sitemap" ></i>Switsh </a></li>
+                     <li class="bt"><a href="#"><i class="fa fa-code-fork"></i>If </a>
+                        <span class="jquery-accordion-menu-label">12 </span>
+                     </li>
+                     <li><a href="#"><i class="fa fa-undo"></i>Cycles </a>
+                         <ul class="submenu submenu2">
+                             <li><a href="#">Web Design </a></li>
+                             <li><a href="#">Hosting </a></li>
+                             <li><a href="#">Design </a>
+                                 <ul class="submenu submenu3">
+                                     <li><a href="#">Graphics </a></li>
+                                     <li><a href="#">Vectors </a></li> 
+                                     <li><a href="#">Photoshop </a></li>
+                                     <li><a href="#">Fonts </a></li>
+                                 </ul>
+                             </li>
+                             <li><a href="#">Consulting </a></li>
+                         </ul>
+                     </li>
+                     <li><a href="#"><i class="fa fa-cube"></i>Class </a></li>
+                     <li><a href="#"><i class="fa fa-suitcase"></i>Portfolio </a>
+                         <ul class="submenu submenu2">
+                             <li><a href="#">Web Design </a></li>
+                             <li><a href="#">Wraphics </a></li>
+                             <li><a href="#">Photoshop </a></li>
+                             <li><a href="#">Programming </a></li>
+                         </ul>
+                     </li>
+                     <li><a href="#"><i class="fa fa-user"></i>About </a></li>
+                     <li><a href="#"><i class="fa fa-envelope"></i>Contact </a></li>
+                 </ul>
+             </div>
+        </div><!-- ./col-md-4 col-md-offset-4 -->
+    </div><!-- ./row -->
+</div><!-- ./container --> 
+
+
+
+<div class="container texts-block">
+    <div class="row">
+         <form class="form-inline">
+             <span class="form-group text-area-left">
+                 <textarea class="form-control auto-size" placeholder="Code" rows="1"></textarea>
+             </span>
+             <span class="form-group text-area-right">
+                 <textarea class="form-control auto-size" placeholder="Formulas" rows="1"></textarea>
+             </span>
+         </form>
+    </div>
+</div>
+
+
+
+
+
+<script type="text/javascript">
+
+function SendData(typeReqest) {
+    const request = new XMLHttpRequest();
+    const url = "models.py";
+
+    var codeText = "codeText";
+    var formulaText = "formulaText";
+    const params = "typeReqest=" + typeReqest + "codeText=" + codeText +"formulaText=" + formulaText;
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    alert(typeReqest);
+
+    request.addEventListener("readystatechange", () => {
+        if(request.readyState === 4 && request.status === 200) {       
+		    console.log(request.responseText);
+        }
+    });
+    request.send(params);
+}
+
+function autoSize(element) {
+    $element = $(element);
+    element.style.overflowY = 'hidden';
+
+    var paddingTopBottom = $element.innerHeight() - $element.height();
+    element.style.height = 'auto';
+    $element.height(element.scrollHeight - paddingTopBottom);
+}
+
+ $('.auto-size').each(function() {
+    autoSize(this);
+    }).on('input', function() {
+        autoSize(this);
+});
+
+window.onload = function ()
+        {
+            for(var pf= 0;document.getElementsByTagName('a').length>pf;pf++)
+            {
+                document.getElementsByTagName('a')[pf].onclick = function()
+                {
+                    //alert(this.textContent);
+                    SendData(this.textContent)
+                    return false;
+                }
+            }
+        }
+
+$(function () { 
+    
+    //alert();
+    //$(".bt").click(function () { 
+
+    //    alert($(".bt").find("a").textContent.);
+    //     SendData($(".bt").find("a").textContent);
+    //}) 
+ }) 
+
+
+
+//обработчик
+ jQuery(document).ready(function () {
+    jQuery("#jquery-accordion-menu").jqueryAccordionMenu(); 
+ });
+//активный класс
+ $(function(){ 
+     $("#mainMenu-list li").click(function(){
+         $("#mainMenu-list li.active").removeClass("active")
+         $(this).addClass("active");
+    }) 
+ }) 
+</script>
+
+<script type="text/javascript">
+    var flag = 0;
+//поисковая строка
+ (function($) {
+     $.expr[":"].Contains = function(a, i, m) {
+     return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+     };
+     function filterList(header, list) {
+         var form = $("<form>").attr({
+             "class":"filterform",
+             action:"#"
+         }),
+
+        input = $("<input>").attr({
+            "class":"filterinput",
+            type:"text"
+        });
+
+        $(form).append(input).appendTo(header);
+        $(input).change(function() {
+            var filter = $(this).val();
+            if (filter) {                
+                $matches = $(list).find("a:Contains(" + filter + ")").parent();
+                $matches2 = $(list).find("ul:Contains(" + filter + ")").parent();
+                $matches3 = $(list).find("li:Contains(" + filter + ")").parent();
+                $("li", list).not($matches).not($matches2)/*.not($matches3)*/.slideUp();
+
+                $matches.slideDown();
+                $matches2.slideDown();
+                $matches3.slideDown();
+
+                //$(list).find("a.submenu").parent().click();
+                //$matches3.slideDown(); display: block;
+                //$(list).find("li").find("a").attr("style":"display: none", );
+                //$(".submenu li").attr("style","display: block");
+
+            } else {
+                //$("li", list).not($matches).not($matches2).slideDown();
+                //alert("12");
+                //$matches.find("li").slideUp();
+                //$matches2.find("li").slideUp();
+                //$matches3.slideUp();  
+                $(list).find("li").slideDown();
+            }
+            return false;
+        }).keyup(function() {
+            $(this).change();
+        });
+     }
+     $(function() {
+        filterList($("#form"), $("#mainMenu-list"));
+     });
+})(jQuery);
+</script>
+
+</body>
+</html>
