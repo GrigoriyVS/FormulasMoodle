@@ -24,28 +24,33 @@
              <div id="jquery-accordion-menu" class="jquery-accordion-menu black">
                  <div class="jquery-accordion-menu-header" id="form"></div>
                  <ul id="mainMenu-list">
-                     <li class="active bt"><a href="#" type="submit" name="Won"><i class="fa fa-home"></i>Won </a></li>
-                     <li class="bt"><a href="#" id="Switsh"><i class="fa fa-sitemap" ></i>Switsh </a></li>
-                     <li class="bt"><a href="#"><i class="fa fa-code-fork"></i>If </a>
-                        <span class="jquery-accordion-menu-label">12 </span>
+                     <li class="active bt"><a href="#" type="submit" name="Won"><i class="fa fa-home"></i>Won</a></li>
+                     <li class="bt"><a href="#" id="Switsh"><i class="fa fa-sitemap" ></i>Switsh</a>
+                        <span class="jquery-accordion-menu-label">12</span>
+                     </li>
+                     <li class="bt"><a href="#"><i class="fa fa-code-fork"></i>If</a>
+                        <ul class="submenu submenu2">
+                             <li><a href="#">With else</a></li>
+                             <li><a href="#">Without else</a></li>
+                         </ul>
                      </li>
                      <li><a href="#"><i class="fa fa-undo"></i>Cycles </a>
                          <ul class="submenu submenu2">
-                             <li><a href="#">Web Design </a></li>
-                             <li><a href="#">Hosting </a></li>
-                             <li><a href="#">Design </a>
+                             <li><a href="#">Web Design</a></li>
+                             <li><a href="#">Hosting</a></li>
+                             <li><a href="#">Design</a>
                                  <ul class="submenu submenu3">
-                                     <li><a href="#">Graphics </a></li>
-                                     <li><a href="#">Vectors </a></li> 
-                                     <li><a href="#">Photoshop </a></li>
-                                     <li><a href="#">Fonts </a></li>
+                                     <li><a href="#">Graphics</a></li>
+                                     <li><a href="#">Vectors</a></li> 
+                                     <li><a href="#">Photoshop</a></li>
+                                     <li><a href="#">Fonts</a></li>
                                  </ul>
                              </li>
-                             <li><a href="#">Consulting </a></li>
+                             <li><a href="#">Consulting</a></li>
                          </ul>
                      </li>
-                     <li><a href="#"><i class="fa fa-cube"></i>Class </a></li>
-                     <li><a href="#"><i class="fa fa-suitcase"></i>Portfolio </a>
+                     <li><a href="#"><i class="fa fa-cube"></i>Class</a></li>
+                     <li><a href="#"><i class="fa fa-suitcase"></i>Portfolio</a>
                          <ul class="submenu submenu2">
                              <li><a href="#">Web Design </a></li>
                              <li><a href="#">Wraphics </a></li>
@@ -53,8 +58,8 @@
                              <li><a href="#">Programming </a></li>
                          </ul>
                      </li>
-                     <li><a href="#"><i class="fa fa-user"></i>About </a></li>
-                     <li><a href="#"><i class="fa fa-envelope"></i>Contact </a></li>
+                     <li><a href="#"><i class="fa fa-user"></i>About</a></li>
+                     <li><a href="#"><i class="fa fa-envelope"></i>Contact</a></li>
                  </ul>
              </div>
         </form><!-- ./col-md-4 col-md-offset-4 -->
@@ -67,10 +72,10 @@
     <div class="row">
          <form class="form-inline">
              <span class="form-group text-area-left">
-                 <textarea class="form-control auto-size" placeholder="Code" rows="1"></textarea>
+                 <textarea class="form-control auto-size" placeholder="Code" rows="1" id="codeText"></textarea>
              </span>
              <span class="form-group text-area-right">
-                 <textarea class="form-control auto-size" placeholder="Formulas" rows="1"></textarea>
+                 <textarea class="form-control auto-size" placeholder="Formulas" rows="1" id="formulaText"></textarea>
              </span>
          </form>
     </div>
@@ -82,35 +87,63 @@
 
 <script type="text/javascript">
 
+
+
+window.onload = function () {
+    for(var pf= 0;document.getElementsByTagName('a').length>pf;pf++)
+    {
+        var el = document.getElementsByTagName('a')[pf];
+        el.onclick = function()
+        {
+            if (this.textContent[this.textContent.length - 1] != "+") {
+                SendDataAjax("typeReqest="+this.textContent.replace(" ", "_")+"&caretPos="+getCaretPos(document.getElementById('codeText')))
+            }
+            return false;
+        }
+    }
+}
+
 function SendDataAjax(typeReqest) {
     $.ajax({
         type: "GET",
         url: "foofoo/",
         data: {"typeReqest":typeReqest},
         success: function (msg) {
-            alert("Прибыли данные: " + msg);
+            //alert("Прибыли данные: " + msg);
+            $("#codeText").val(msg);
+            $("#formulaText").val(msg);
         }
     });
 }
-function SendData(typeReqest) {
-    const request = new XMLHttpRequest();
-    const url = "models.py";
 
-    var codeText = "codeText";
-    var formulaText = "formulaText";
-    const params = "typeReqest=" + typeReqest + "codeText=" + codeText +"formulaText=" + formulaText;
-    request.open("POST", url, true);
-    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-    alert(typeReqest);
 
-    request.addEventListener("readystatechange", () => {
-        if(request.readyState === 4 && request.status === 200) {       
-		    console.log(request.responseText);
-        }
-    });
-    request.send(params);
+
+function getCaretPos(obj)
+{
+     //obj.focus();
+
+     if(obj.selectionStart) return obj.selectionStart;
+     else if (document.selection)
+     {
+          var sel = document.selection.createRange();
+          var clone = sel.duplicate();
+          sel.collapse(true);
+          clone.moveToElementText(obj);
+          clone.setEndPoint('EndToEnd', sel);
+          return clone.text.length;
+     }
+
+     return 0;
 }
+//function cleanForm() {
+//	document.getElementById('cs').value = getCaretPos(document.getElementById('ta'));
+//	setTimeout("cleanForm();", 100);
+//}
+
+
+
+
 
 function autoSize(element) {
     $element = $(element);
@@ -127,18 +160,7 @@ function autoSize(element) {
         autoSize(this);
 });
 
-window.onload = function ()
-        {
-            for(var pf= 0;document.getElementsByTagName('a').length>pf;pf++)
-            {
-                document.getElementsByTagName('a')[pf].onclick = function()
-                {
-                    //alert(this.textContent);
-                    SendDataAjax(this.textContent)
-                    return false;
-                }
-            }
-        }
+
 
 $(function () { 
     

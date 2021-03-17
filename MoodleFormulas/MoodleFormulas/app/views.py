@@ -6,6 +6,7 @@ from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpRequest
 from django.http import HttpResponse
+from app.ctof_if import *
 
 def home(request):
     """Renders the home page."""
@@ -45,7 +46,17 @@ def about(request):
         }
     )
 
-def foofoo(request):
-    val = request.GET["typeReqest"]
-    print(val)
-    return HttpResponse(val, content_type='text/html')
+def foofoo(request):   
+    values = request.GET["typeReqest"].split("&")
+
+    for dict in values:
+        key = dict.split("=")[0]
+        value = dict.split("=")[1]
+        if(key=="typeReqest"):
+            typeReqest = value
+        elif(key=="caretPos"):
+            caretPos = value
+
+    return HttpResponse(ctof_if_functions[typeReqest](caretPos), content_type='text/html')
+
+
